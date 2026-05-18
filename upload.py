@@ -113,8 +113,16 @@ def build_body(
     prefill: set[str],
     title: str,
     pdf_b64: str,
+    template_options: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    signers: dict[str, list[dict[str, Any]]] = {}
+    """Assemble the createtemplate request body.
+
+    Signers come out in the order their roles appear in `placeholders`
+    (which `build.py` already orders by `roles:` yaml insertion order).
+    Template-level options (sendInOrder, etc.) are merged in last.
+    """
+    signers: list[dict[str, Any]] = []
+    role_index: dict[str, int] = {}
     prefill_widgets: list[dict[str, Any]] = []
 
     for ph in placeholders:
@@ -128,20 +136,51 @@ def build_body(
                 key = w.get("key", "")
                 if key in prefill:
                     prefill_widgets.append(api_widget)
-                else:
-                    signers.setdefault(role, []).append(api_widget)
+                    continue
+                if role not in role_index:
+                    role_index[role] = len(signers)
+                    signers.append(
+                        {"role": role, "signer_role": "signer", "widgets": []}
+                    )
+                signers[role_index[role]]["widgets"].append(api_widget)
 
     body: dict[str, Any] = {
         "title": title,
         "file": pdf_b64,
-        "signers": [
-            {"role": role, "signer_role": "signer", "widgets": widgets}
-            for role, widgets in sorted(signers.items())
-        ],
+        "signers": signers,
     }
     if prefill_widgets:
         body["prefill"] = {"widgets": prefill_widgets}
+    if template_options:
+        body.update(template_options)
     return body
+
+
+# Map from yaml-friendly snake_case to the createtemplate API's keys.
+TEMPLATE_OPTION_KEYS: dict[str, str] = {
+    "send_in_order": "sendInOrder",
+    "send_in_order_strict": "send_in_order_strict",
+    "allow_modifications": "allow_modifications",
+    "auto_reminder": "auto_reminder",
+    "enable_otp": "enableOTP",
+    "notify_on_signatures": "notify_on_signatures",
+    "redirect_url": "redirect_url",
+    "remind_once_in_every": "remind_once_in_every",
+    "time_to_complete_days": "timeToCompleteDays",
+    "description": "description",
+    "note": "note",
+}
+
+
+def extract_template_options(widgets_yaml: dict[str, Any]) -> dict[str, Any]:
+    """Read the `template:` block from widgets.yaml and map snake_case keys
+    to OpenSign's API casing."""
+    src: dict[str, Any] = widgets_yaml.get("template", {}) or {}
+    out: dict[str, Any] = {}
+    for k, v in src.items():
+        api_key = TEMPLATE_OPTION_KEYS.get(k, k)
+        out[api_key] = v
+    return out
 
 
 def main() -> int:
@@ -194,6 +233,7 @@ def main() -> int:
         prefill_keys(widgets_yaml),
         args.title or "(untitled — dry run)",
         pdf_b64,
+        template_options=extract_template_options(widgets_yaml),
     )
 
     if args.dry_run or args.verbose:

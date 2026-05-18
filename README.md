@@ -198,6 +198,43 @@ client_signed_date:
   name: Client Date Signed
 ```
 
+**Fully-executed date.** OpenSign doesn't have a built-in "document
+fully executed" widget. To capture the date when the *last* signer
+completes (i.e. when the agreement is fully signed), combine
+`default: today` with sequential signing — assign the date to the
+*last* role in the `roles:` map and set `template.send_in_order: true`:
+
+```yaml
+template:
+  send_in_order: true
+
+roles:
+  Client:                       # signs first
+  Consultant:                   # signs last → stamps the agreement date
+
+widgets:
+  agreement_date:
+    type: date
+    role: Consultant            # the last signer
+    default: today              # → execution date
+    name: Agreement Date
+```
+
+**Template-level options.** The `template:` block in `widgets.yaml`
+forwards to OpenSign's `/createtemplate` body. Snake_case keys are
+mapped to OpenSign's casing:
+
+| YAML | OpenSign field |
+|---|---|
+| `send_in_order` | `sendInOrder` |
+| `send_in_order_strict` | `send_in_order_strict` |
+| `auto_reminder` | `auto_reminder` |
+| `time_to_complete_days` | `timeToCompleteDays` |
+| `enable_otp` | `enableOTP` |
+| `notify_on_signatures` | `notify_on_signatures` |
+| `redirect_url` | `redirect_url` |
+| `description` / `note` | `description` / `note` |
+
 **Other per-widget options:** `hint` (placeholder text), `default`
 (default value), `required: false`, `w` / `h` (override measured
 size), `x_offset` / `y_offset` (fine-tune position).

@@ -24,7 +24,13 @@
 defaults:
   required: true
 
-# Optional metadata per signer role (colour shown in the OpenSign UI).
+# Template-level options forwarded to OpenSign /createtemplate.
+template:
+  # Lock signing order to the order of the `roles:` map below.
+  send_in_order: true
+
+# Signer roles. The order here is the signing order.
+# Optional `color:` sets the UI block colour.
 roles:
   "Disclosing Party":
     color: "#93a3db"

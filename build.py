@@ -422,8 +422,14 @@ def build_placeholders(
         role = spec.get("role", "Role 1")
         by_role[role][page].append(widget)
 
+    # Role order: take the `roles:` map's insertion order from yaml, then any
+    # extra roles that appear in widgets but not in the roles map (sorted).
+    declared_order = [r for r in roles_meta if r in by_role]
+    undeclared = sorted(r for r in by_role if r not in roles_meta)
+    role_order = declared_order + undeclared
+
     placeholders: list[dict[str, Any]] = []
-    for idx, role in enumerate(sorted(by_role.keys()), start=1):
+    for idx, role in enumerate(role_order, start=1):
         meta = roles_meta.get(role, {})
         placeholders.append(
             {
