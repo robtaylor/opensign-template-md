@@ -58,6 +58,10 @@ Signature:
 
 ‹w:disclosing_signature›\_______________________________________________________________________________
 
+Date signed:
+
+‹w:disclosing_signed_date›\_\_\_\_\_\_\_\_\_\_
+
 ---
 
 **Signed** for and on behalf of the **Receiving Party**:
@@ -71,3 +75,7 @@ Signature:
 &nbsp;
 
 ‹w:receiving_signature›\_______________________________________________________________________________
+
+Date signed:
+
+‹w:receiving_signed_date›\_\_\_\_\_\_\_\_\_\_

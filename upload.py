@@ -70,6 +70,7 @@ def widget_to_api(internal: dict[str, Any]) -> dict[str, Any]:
     widget shape (flat x/y/w/h, with `options` rebuilt for OpenSign).
     """
     opts = internal.get("options", {}) or {}
+    widget_type = internal["type"]
     api_opts: dict[str, Any] = {
         "name": opts.get("name", internal.get("key", "")),
         "required": opts.get("status", "required") != "optional",
@@ -78,10 +79,26 @@ def widget_to_api(internal: dict[str, Any]) -> dict[str, Any]:
     }
     if hint := opts.get("hint"):
         api_opts["hint"] = hint
-    if "defaultValue" in opts:
-        api_opts["default"] = opts["defaultValue"]
+    default_value = opts.get("defaultValue")
+    if widget_type == "date":
+        # Date widget needs a fuller set of options per the createtemplate
+        # docs. Yaml's friendly `default: today` maps to `signing_date: true`
+        # so OpenSign auto-stamps the date the signer signs.
+        api_opts["format"] = opts.get("format", "dd-mm-yyyy")
+        api_opts["color"] = opts.get("color", "black")
+        api_opts["min_date"] = opts.get("min_date", "")
+        api_opts["max_date"] = opts.get("max_date", "")
+        api_opts["readonly"] = opts.get("readonly", False)
+        if default_value == "today":
+            api_opts["signing_date"] = True
+        else:
+            api_opts["signing_date"] = False
+            if default_value:
+                api_opts["default"] = default_value
+    elif default_value is not None:
+        api_opts["default"] = default_value
     return {
-        "type": internal["type"],
+        "type": widget_type,
         "page": internal["_page"] if "_page" in internal else internal.get("page"),
         "x": internal["xPosition"],
         "y": internal["yPosition"],

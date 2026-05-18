@@ -143,9 +143,67 @@ Signature:
 ### `widgets.yaml`
 
 Maps each anchor key to its OpenSign widget type, signing role, and
-display name. See [`examples/widgets.yaml`](examples/widgets.yaml). The
-script measures width and height from the PDF — only set `w`/`h`
-explicitly when you need to override the measurement.
+display name. The script measures width and height from the PDF — only
+set `w`/`h` explicitly when you need to override the measurement.
+
+```yaml
+widgets:
+  client_name:
+    type: company
+    role: Client            # the Client signer fills this in
+    name: Client Name
+
+  client_signature:
+    type: signature
+    role: Client
+    name: Client Signature
+
+  agreement_date:
+    type: date
+    role: Consultant
+    prefill: true           # the sender fills this when sending the template
+    name: Agreement Date
+```
+
+**Roles.** Each widget has a `role:` that names the signing party
+responsible for filling it in. The build script groups widgets by role
+into OpenSign's `Placeholders` array; OpenSign then routes the signing
+request to the right person per role. You can declare any role names
+you like; the YAML also accepts an optional `roles:` block to set the
+UI block colour:
+
+```yaml
+roles:
+  Client:
+    color: "#93a3db"
+  Consultant:
+    color: "#dba593"
+```
+
+**Prefill (sender-filled) widgets.** Set `prefill: true` to route a
+widget into the `prefill.widgets` array instead of a signer's widget
+list. The sender fills these in when preparing the document to send.
+The `role:` on a prefill widget is unused (but harmless to leave in).
+
+**Auto-filled signing date.** Add `default: today` to a `date` widget
+to have OpenSign stamp in the date that signer actually signs. The
+upload script translates this into the `signing_date: true` option
+that OpenSign expects:
+
+```yaml
+client_signed_date:
+  type: date
+  role: Client
+  default: today          # auto-fills with the date the Client signs
+  name: Client Date Signed
+```
+
+**Other per-widget options:** `hint` (placeholder text), `default`
+(default value), `required: false`, `w` / `h` (override measured
+size), `x_offset` / `y_offset` (fine-tune position).
+
+See [`examples/widgets.yaml`](examples/widgets.yaml) for a full
+worked example.
 
 ### `config.yaml`
 

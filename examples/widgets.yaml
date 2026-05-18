@@ -61,6 +61,13 @@ widgets:
     role: Disclosing Party
     name: Disclosing Party Signature
 
+  disclosing_signed_date:
+    type: date
+    role: Disclosing Party
+    # `default: today` makes OpenSign stamp in the date the signer signs.
+    default: today
+    name: Disclosing Party Date Signed
+
   # === Receiving Party block ===
 
   receiving_name:
@@ -82,6 +89,12 @@ widgets:
     type: signature
     role: Receiving Party
     name: Receiving Party Signature
+
+  receiving_signed_date:
+    type: date
+    role: Receiving Party
+    default: today
+    name: Receiving Party Date Signed
 
   # === Shared inline ===
 
