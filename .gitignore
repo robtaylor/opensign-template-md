@@ -1,0 +1,14 @@
+.env
+.env.*
+!examples/.env.example
+*.pdf
+placeholders.json
+__pycache__/
+*.pyc
+.ruff_cache/
+.tldr/
+
+# Anything that looks like a user's actual document (keep the examples)
+/template.md
+/config.yaml
+/widgets.yaml

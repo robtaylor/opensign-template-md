@@ -1,0 +1,3 @@
+# Values substituted into the markdown wherever $$NAME appears.
+# Keys are case-insensitive; the markdown uses $$YEARS.
+years: "3"

@@ -1,0 +1,93 @@
+# Widget specifications for an OpenSign template.
+#
+# Each key matches a ‹w:KEY› anchor in the markdown source. For each
+# widget, declare its OpenSign field `type`, the signing `role` it
+# belongs to, and a human-readable `name` shown in the OpenSign UI.
+#
+# Width and height are MEASURED from the rendered PDF — the build
+# script reads the extent of the visible underscore field at each
+# anchor's position. Override only when you need a fixed size by
+# setting `w` and/or `h` in points.
+#
+# Optional per-widget keys:
+#   prefill: true     # the creator fills this in when SENDING (not the signer)
+#   hint: "..."       # placeholder text shown in the input field
+#   default: "..."    # default value for prefill fields
+#   required: false   # default is true
+#   w / h: number     # override the measured width / height (points)
+#   x_offset / y_offset: number  # fine-tune the position (points)
+#
+# OpenSign widget types: signature, stamp, initials, name, email,
+# "job title", company, textbox, number, cells, checkbox, "radio button",
+# dropdown, date, image.
+
+defaults:
+  required: true
+
+# Optional metadata per signer role (colour shown in the OpenSign UI).
+roles:
+  "Disclosing Party":
+    color: "#93a3db"
+  "Receiving Party":
+    color: "#dba593"
+
+widgets:
+
+  agreement_date:
+    type: date
+    role: Disclosing Party
+    prefill: true
+    name: Agreement Date
+
+  # === Disclosing Party block ===
+
+  disclosing_name:
+    type: company
+    role: Disclosing Party
+    name: Disclosing Party Name
+
+  disclosing_address:
+    type: textbox
+    role: Disclosing Party
+    name: Disclosing Party Address
+
+  disclosing_signatory_name:
+    type: name
+    role: Disclosing Party
+    name: Disclosing Party Signatory
+
+  disclosing_signature:
+    type: signature
+    role: Disclosing Party
+    name: Disclosing Party Signature
+
+  # === Receiving Party block ===
+
+  receiving_name:
+    type: company
+    role: Receiving Party
+    name: Receiving Party Name
+
+  receiving_address:
+    type: textbox
+    role: Receiving Party
+    name: Receiving Party Address
+
+  receiving_signatory_name:
+    type: name
+    role: Receiving Party
+    name: Receiving Party Signatory
+
+  receiving_signature:
+    type: signature
+    role: Receiving Party
+    name: Receiving Party Signature
+
+  # === Shared inline ===
+
+  purpose:
+    type: textbox
+    role: Disclosing Party
+    prefill: true
+    name: Purpose of Disclosure
+    hint: e.g. "evaluating a potential collaboration"
